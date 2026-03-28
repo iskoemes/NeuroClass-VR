@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: radial-gradient(circle at 20% 20%, #1a1a2e, #0f0f1a 40%, #050505);
+  color: white;
+}
+
+/* glow text */
+
+.glow {
+  text-shadow:
+    0 0 10px rgba(168,85,247,0.7),
+    0 0 20px rgba(168,85,247,0.6),
+    0 0 40px rgba(168,85,247,0.4);
+}
+
+/* glass */
+
+.glass {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* neon button */
+
+.neon-button {
+  background: linear-gradient(135deg,#7c3aed,#9333ea,#c026d3);
+  box-shadow:
+    0 0 10px rgba(168,85,247,0.6),
+    0 0 30px rgba(168,85,247,0.4);
+  transition: all 0.3s ease;
+}
+
+.neon-button:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 20px rgba(168,85,247,1),
+    0 0 60px rgba(168,85,247,0.8);
+}
+
+/* floating animation */
+
+@keyframes float {
+  0% { transform: translateY(0px) }
+  50% { transform: translateY(-20px) }
+  100% { transform: translateY(0px) }
+}
+
+.float {
+  animation: float 6s ease-in-out infinite;
+}
