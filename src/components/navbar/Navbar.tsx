@@ -1,38 +1,38 @@
-"use client"
+'use client'
 
-import Link from "next/link"
+import Link from 'next/link'
+
+const links = [
+  { href: '/', label: 'Главная' },
+  { href: '/courses', label: 'Курсы' },
+  { href: '/dashboard', label: 'Панель' },
+  { href: '/vr', label: 'VR-класс' },
+] as const
 
 export default function Navbar() {
-
   return (
-
-    <nav className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-10 py-4 glass">
-
-      <h1 className="text-2xl font-bold glow">
-        NeuroClass VR
-      </h1>
-
-      <div className="flex gap-8 text-gray-300">
-
-        <Link href="/" className="hover:text-white transition">
-          главная
+    <header className="fixed top-0 left-0 z-50 w-full border-b border-white/10 bg-zinc-950/80 backdrop-blur-md">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-4">
+        <Link
+          href="/"
+          className="text-sm font-semibold tracking-tight text-white"
+        >
+          NeuroClass VR
         </Link>
 
-        <Link href="/courses" className="hover:text-white transition">
-            курсы
-        </Link>
-
-        <Link href="/dashboard" className="hover:text-white transition">
-          панель управления
-        </Link>
-
-        <Link href="/vr" className="hover:text-white transition">
-         VR-класс
-        </Link>
-
-      </div>
-
-    </nav>
-
+        <ul className="flex flex-wrap items-center justify-end gap-6 text-sm text-white/70">
+          {links.map(({ href, label }) => (
+            <li key={href}>
+              <Link
+                href={href}
+                className="transition hover:text-white"
+              >
+                {label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </header>
   )
 }

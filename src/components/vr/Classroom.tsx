@@ -1,49 +1,60 @@
 /* eslint-disable react-hooks/purity */
 'use client'
 
-import { useRef, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useGLTF, Sky } from '@react-three/drei'
-import { Group } from 'three'
 import { InteractiveObject } from './interaction/InteractiveObject'
+import { GroundedModel } from './GroundedModel'
+
+const COLUMN_X = [-60, -30, 0, 30, 60] as const
 
 export default function Classroom() {
-
-  const group = useRef<Group>(null)
-
   const columns = useGLTF('/models/columns.glb')
   const ruins = useGLTF('/models/Ruined.glb')
   const temple = useGLTF('/models/Temple.glb')
 
-  // 🌿 ГУСТАЯ ТРАВА
+  const columnFront = useMemo(
+    () => COLUMN_X.map(() => columns.scene.clone()),
+    [columns.scene]
+  )
+  const columnBack = useMemo(
+    () => COLUMN_X.map(() => columns.scene.clone()),
+    [columns.scene]
+  )
+
+  const ruinInstances = useMemo(
+    () => [0, 1, 2, 3].map(() => ruins.scene.clone()),
+    [ruins.scene]
+  )
+
   const grass = useMemo(() => {
     const items = []
-    for (let i = 0; i < 800; i++) {
-      const x = (Math.random() - 0.5) * 250
-      const z = (Math.random() - 0.5) * 250
-      const scale = 0.5 + Math.random()
+    for (let i = 0; i < 220; i++) {
+      const x = (Math.random() - 0.5) * 220
+      const z = (Math.random() - 0.5) * 220
+      const scale = 0.45 + Math.random() * 0.55
 
       items.push(
-        <mesh key={i} position={[x, 0.05, z]} scale={scale}>
-          <coneGeometry args={[0.12, 0.5, 5]} />
-          <meshStandardMaterial color="#3f7d2b" />
+        <mesh key={i} position={[x, 0.08, z]} scale={scale}>
+          <coneGeometry args={[0.1, 0.45, 5]} />
+          <meshStandardMaterial color="#3d6b32" roughness={0.85} />
         </mesh>
       )
     }
     return items
   }, [])
 
-  // 🐦 ПТИЦЫ (выше и шире)
   const birds = useMemo(() => {
     const items = []
-    for (let i = 0; i < 20; i++) {
-      const x = (Math.random() - 0.5) * 200
-      const z = (Math.random() - 0.5) * 200
-      const y = 20 + Math.random() * 20
+    for (let i = 0; i < 16; i++) {
+      const x = (Math.random() - 0.5) * 180
+      const z = (Math.random() - 0.5) * 180
+      const y = 18 + Math.random() * 22
 
       items.push(
         <mesh key={i} position={[x, y, z]}>
-          <sphereGeometry args={[0.2, 8, 8]} />
-          <meshStandardMaterial color="black" />
+          <sphereGeometry args={[0.18, 8, 8]} />
+          <meshStandardMaterial color="#1a1a1a" />
         </mesh>
       )
     }
@@ -51,9 +62,7 @@ export default function Classroom() {
   }, [])
 
   return (
-    <group ref={group}>
-
-      {/* 🌤 НЕБО */}
+    <group>
       <Sky
         distance={450000}
         sunPosition={[50, 80, 20]}
@@ -61,96 +70,78 @@ export default function Classroom() {
         azimuth={0.25}
       />
 
-      {/* ☀️ СОЛНЦЕ */}
       <directionalLight
         position={[80, 120, 40]}
-        intensity={4}
+        intensity={3.2}
         castShadow
-        shadow-mapSize={[4096, 4096]}
+        shadow-mapSize={[2048, 2048]}
+        shadow-camera-far={500}
+        shadow-camera-left={-200}
+        shadow-camera-right={200}
+        shadow-camera-top={200}
+        shadow-camera-bottom={-200}
       />
 
-      {/* 🌫 ТУМАН (ВАЖНО ДЛЯ АТМОСФЕРЫ) */}
-      <fog attach="fog" args={['#d6c7a1', 80, 260]} />
+      <fog attach="fog" args={['#c9bba8', 90, 240]} />
 
-      {/* МЯГКИЙ СВЕТ */}
-      <ambientLight intensity={0.7} />
+      <ambientLight intensity={0.55} />
 
-      {/* 🌍 ЗЕМЛЯ (БОЛЬШЕ И МЯГЧЕ) */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
         <planeGeometry args={[800, 800]} />
-        <meshStandardMaterial color="#c2a878" />
+        <meshStandardMaterial color="#b8a882" roughness={0.95} />
       </mesh>
 
-      {/* 🏛 ГЛАВНЫЙ ХРАМ (ОГРОМНЫЙ И ВИДНЫЙ) */}
       <InteractiveObject
-        label="Explore Temple"
+        label="Храм — подробнее"
         onClick={() => {
-          fetch('/api/chat', {
+          void fetch('/api/chat', {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              message: 'Explain Ancient Roman temples in simple terms'
-            })
+              messages: [
+                {
+                  role: 'user',
+                  content:
+                    'Кратко объясни храмы Древнего Рима простым языком для школьника.',
+                },
+              ],
+            }),
           })
         }}
       >
-        <primitive
+        <GroundedModel
           object={temple.scene}
           position={[0, 0, -120]}
           scale={25}
-          userData={{ interactive: true, name: 'Temple' }}
+          rotation={[0, 0, 0]}
         />
       </InteractiveObject>
 
-      {/* 🏛 КОЛОННЫ — АЛЛЕЯ */}
-      {[-60, -30, 0, 30, 60].map((x, i) => (
-        <primitive
-          key={i}
-          object={columns.scene.clone()}
+      {COLUMN_X.map((x, i) => (
+        <GroundedModel
+          key={`col-f-${i}`}
+          object={columnFront[i]!}
           position={[x, 0, -40]}
           scale={14}
         />
       ))}
 
-      {[-60, -30, 0, 30, 60].map((x, i) => (
-        <primitive
-          key={'back-' + i}
-          object={columns.scene.clone()}
+      {COLUMN_X.map((x, i) => (
+        <GroundedModel
+          key={`col-b-${i}`}
+          object={columnBack[i]!}
           position={[x, 0, -80]}
           scale={14}
         />
       ))}
 
-      {/* 🧱 РУИНЫ (РАЗБРОСАНЫ) */}
-      <primitive
-        object={ruins.scene}
-        position={[30, 0, 40]}
-        scale={12}
-      />
+      <GroundedModel object={ruinInstances[0]!} position={[30, 0, 40]} scale={12} />
+      <GroundedModel object={ruinInstances[1]!} position={[-40, 0, 60]} scale={12} />
+      <GroundedModel object={ruinInstances[2]!} position={[70, 0, 70]} scale={12} />
+      <GroundedModel object={ruinInstances[3]!} position={[-70, 0, 80]} scale={12} />
 
-      <primitive
-        object={ruins.scene.clone()}
-        position={[-40, 0, 60]}
-        scale={12}
-      />
-
-      <primitive
-        object={ruins.scene.clone()}
-        position={[70, 0, 70]}
-        scale={12}
-      />
-
-      <primitive
-        object={ruins.scene.clone()}
-        position={[-70, 0, 80]}
-        scale={12}
-      />
-
-      {/* 🌿 ТРАВА */}
       {grass}
-
-      {/* 🐦 ПТИЦЫ */}
       {birds}
-
     </group>
   )
 }

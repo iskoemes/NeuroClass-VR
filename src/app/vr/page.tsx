@@ -131,17 +131,18 @@ export default function VRPage() {
   };
 
   return (
-    <div className="h-screen w-full overflow-hidden relative bg-black">
-      {/* Enter VR */}
+    <div className="relative h-screen w-full overflow-hidden bg-zinc-950">
       <button
+        type="button"
         onClick={() => xrStore.enterVR()}
-        className="absolute top-6 left-6 z-50 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-2xl flex items-center gap-3 shadow-lg transition-all active:scale-95"
+        className="absolute left-6 top-20 z-50 rounded-lg border border-white/15 bg-white/10 px-5 py-2.5 text-sm font-medium text-white transition hover:border-white/25 hover:bg-white/15 active:scale-[0.98]"
       >
-        🥽 Enter VR
+        Войти в VR
       </button>
 
       <Canvas
-        camera={{ position: [0, 8, 22], fov: 50 }}
+        className="h-full w-full"
+        camera={{ position: [0, 9, 24], fov: 48 }}
         shadows="soft"
         dpr={[1, 1.5]}
         gl={{
@@ -185,37 +186,39 @@ export default function VRPage() {
         </Suspense>
       </Canvas>
 
-      {/* AI кнопка */}
       <button
+        type="button"
         onClick={() => setIsChatOpen(true)}
-        className="absolute top-6 right-6 neon-button px-6 py-4 rounded-3xl flex items-center gap-3 text-lg font-medium hover:scale-105 transition-all border border-cyan-400/30 z-50"
+        className="absolute right-6 top-20 z-50 flex items-center gap-2 rounded-lg border border-white/15 bg-white/10 px-5 py-2.5 text-sm font-medium text-white transition hover:border-white/25 hover:bg-white/15"
       >
-        💬 AI-тьютор
-        <div className="w-2 h-2 bg-green-400 rounded-full animate-ping" />
+        ИИ-тьютор
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden />
       </button>
 
       {/* Чат */}
       {isChatOpen && (
-        <div className="absolute top-0 right-0 h-full w-96 glass border-l border-white/10 flex flex-col z-50">
-          <div className="p-6 border-b border-white/10 flex justify-between items-center">
-            <h2 className="text-xl font-bold text-cyan-300">AI-тьютор</h2>
+        <div className="glass absolute right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-white/10 sm:max-w-sm">
+          <div className="flex items-center justify-between border-b border-white/10 p-5">
+            <h2 className="text-base font-semibold text-white">ИИ-тьютор</h2>
 
             <button
+              type="button"
               onClick={() => setIsChatOpen(false)}
-              className="text-2xl text-white/60 hover:text-white"
+              className="rounded-md px-2 py-1 text-lg leading-none text-white/55 transition hover:bg-white/10 hover:text-white"
+              aria-label="Закрыть чат"
             >
-              ✕
+              ×
             </button>
           </div>
 
-          <div className="flex-1 p-6 overflow-y-auto space-y-4 text-sm">
+          <div className="flex-1 space-y-3 overflow-y-auto p-5 text-sm">
             {messages.map((msg) => (
               <div key={msg.id} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
                 <div
-                  className={`px-4 py-3 rounded-2xl max-w-[80%] ${
+                  className={`max-w-[85%] rounded-xl px-4 py-2.5 ${
                     msg.isUser
-                      ? 'bg-cyan-500/20 text-cyan-100'
-                      : 'bg-white/10 text-white'
+                      ? 'bg-white text-zinc-900'
+                      : 'border border-white/10 bg-white/5 text-white/90'
                   }`}
                 >
                   {msg.text}
@@ -226,41 +229,43 @@ export default function VRPage() {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="p-6 border-t border-white/10 flex gap-3">
+          <div className="flex gap-2 border-t border-white/10 p-5">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-              placeholder="Спроси что-нибудь..."
+              placeholder="Напишите вопрос…"
               disabled={isLoading}
-              className="flex-1 bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:border-cyan-400"
+              className="min-w-0 flex-1 rounded-lg border border-white/15 bg-white/5 px-4 py-2.5 text-white placeholder:text-white/40 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/20"
             />
 
             <button
+              type="button"
               onClick={sendMessage}
               disabled={isLoading || !input.trim()}
-              className="neon-button px-6 rounded-xl disabled:opacity-50"
+              className="shrink-0 rounded-lg border border-white/15 bg-white px-4 py-2.5 text-sm font-medium text-zinc-900 transition hover:bg-white/90 disabled:opacity-45"
             >
-              →
+              Отправить
             </button>
           </div>
         </div>
       )}
 
-      {/* Нижняя панель */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 glass px-8 py-4 rounded-3xl flex gap-6 text-sm border border-white/10 z-50">
+      <div className="absolute bottom-6 left-1/2 z-50 flex -translate-x-1/2 gap-3 rounded-xl border border-white/10 bg-zinc-950/90 px-4 py-3 backdrop-blur-sm">
         <button
-          className="neon-button px-6 py-3 rounded-xl"
+          type="button"
+          className="rounded-lg border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/15"
           onClick={() => setIsChatOpen(true)}
         >
-          💬 Спросить AI
+          Спросить ИИ
         </button>
 
         <button
-          className="neon-button px-6 py-3 rounded-xl"
+          type="button"
+          className="rounded-lg border border-white/15 px-4 py-2 text-sm font-medium text-white/85 transition hover:bg-white/10"
           onClick={() => window.history.back()}
         >
-          ← Выйти
+          Назад
         </button>
       </div>
     </div>
